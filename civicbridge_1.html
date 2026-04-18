@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CivicBridge — Students in Action</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink: #1a1a2e; --ink-mid: #3d3d5c; --ink-soft: #6b6b8a;
+    --paper: #faf9f6;
+    --accent: #c5381b; --accent-light: #f9e8e4;
+    --flag-blue: #1b3a7a; --flag-blue-light: #e3eaf9;
+    --gold: #c9922a; --gold-light: #fdf3e0;
+    --success: #1a6b3c; --success-light: #e3f4eb;
+    --border: rgba(26,26,46,0.12);
+    --shadow: 0 2px 20px rgba(26,26,46,0.08);
+    --shadow-lg: 0 8px 40px rgba(26,26,46,0.14);
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; line-height: 1.6; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* HEADER */
+  header { background: var(--flag-blue); color: white; position: sticky; top: 0; z-index: 100; border-bottom: 3px solid var(--accent); }
+  .header-inner { max-width: 1100px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .logo { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+  .logo-star { width: 36px; height: 36px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .logo-text { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; }
+  .logo-tagline { font-size: 11px; opacity: 0.7; letter-spacing: 1.5px; text-transform: uppercase; display: block; margin-top: -2px; }
+  nav { display: flex; align-items: center; gap: 4px; }
+  nav a { color: rgba(255,255,255,0.75); text-decoration: none; font-size: 13px; font-weight: 500; padding: 7px 14px; border-radius: 8px; transition: all 0.2s; cursor: pointer; }
+  nav a:hover { color: white; background: rgba(255,255,255,0.1); }
+  nav a.active { color: white; background: rgba(255,255,255,0.15); }
+  .nav-key { opacity: 0.45; font-size: 12px !important; }
+
+  /* HERO */
+  .hero { background: var(--flag-blue); color: white; padding: 80px 24px 100px; text-align: center; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; bottom: -40px; left: 0; right: 0; height: 80px; background: var(--paper); clip-path: ellipse(60% 100% at 50% 100%); }
+  .hero-eyebrow { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; opacity: 0.6; margin-bottom: 16px; }
+  .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(36px, 6vw, 68px); font-weight: 900; line-height: 1.05; margin-bottom: 20px; max-width: 700px; margin-left: auto; margin-right: auto; }
+  .hero h1 em { font-style: normal; color: #f4a261; }
+  .hero p { font-size: 18px; opacity: 0.8; max-width: 520px; margin: 0 auto 40px; line-height: 1.6; }
+
+  /* ZIP CARD */
+  .zip-card { background: white; border-radius: 20px; padding: 32px 36px; max-width: 560px; margin: 0 auto; box-shadow: var(--shadow-lg); text-align: left; }
+  .zip-card h2 { font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+  .zip-card p { font-size: 13px; color: var(--ink-soft); margin-bottom: 20px; }
+  .zip-row { display: flex; gap: 10px; }
+  .zip-input { flex: 1; padding: 14px 18px; border: 2px solid var(--border); border-radius: 10px; font-size: 18px; font-family: 'DM Sans', sans-serif; font-weight: 500; letter-spacing: 3px; color: var(--ink); background: var(--paper); outline: none; transition: border-color 0.2s; }
+  .zip-input:focus { border-color: var(--flag-blue); }
+  .zip-input::placeholder { letter-spacing: 1px; font-weight: 400; color: var(--ink-soft); }
+  .btn-primary { padding: 14px 24px; background: var(--accent); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.2s; white-space: nowrap; }
+  .btn-primary:hover { background: #a82d16; }
+  .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
+
+  /* MAIN */
+  main { max-width: 1100px; margin: 0 auto; padding: 60px 24px 80px; }
+
+  /* HOW IT WORKS */
+  .how-section { text-align: center; margin-bottom: 64px; }
+  .section-label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); font-weight: 600; margin-bottom: 10px; }
+  .section-title { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700; color: var(--ink); margin-bottom: 12px; }
+  .section-sub { color: var(--ink-soft); font-size: 16px; max-width: 480px; margin: 0 auto 40px; }
+  .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+  .step-card { background: white; border: 1px solid var(--border); border-radius: 16px; padding: 28px 24px; text-align: left; }
+  .step-num { width: 36px; height: 36px; border-radius: 50%; background: var(--flag-blue-light); color: var(--flag-blue); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; margin-bottom: 16px; }
+  .step-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; color: var(--ink); }
+  .step-card p { font-size: 14px; color: var(--ink-soft); line-height: 1.5; }
+
+  /* FILTER BAR */
+  .filter-bar { background: white; border: 1px solid var(--border); border-radius: 16px; padding: 20px 24px; margin-bottom: 28px; display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; }
+  .filter-group { display: flex; flex-direction: column; gap: 6px; }
+  .filter-group label { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-soft); }
+  .filter-group input, .filter-group select { padding: 9px 13px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--ink); background: var(--paper); outline: none; transition: border-color 0.2s; min-width: 150px; }
+  .filter-group input:focus, .filter-group select:focus { border-color: var(--flag-blue); }
+  .filter-count { margin-left: auto; font-size: 13px; color: var(--ink-soft); align-self: center; white-space: nowrap; }
+
+  /* RESULTS */
+  #results { display: none; }
+  #results.visible { display: block; }
+  .results-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+  .results-header h2 { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--ink); }
+  .zip-badge { background: var(--flag-blue-light); color: var(--flag-blue); font-size: 13px; font-weight: 600; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; }
+  .reps-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-bottom: 32px; min-height: 100px; }
+
+  /* PAGINATION */
+  .pagination { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 20px 0; flex-wrap: wrap; }
+  .page-btn { padding: 8px 16px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; background: white; color: var(--ink); transition: all 0.2s; }
+  .page-btn:hover:not(:disabled) { border-color: var(--flag-blue); color: var(--flag-blue); }
+  .page-btn.active { background: var(--flag-blue); color: white; border-color: var(--flag-blue); }
+  .page-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .page-info { font-size: 13px; color: var(--ink-soft); padding: 0 6px; }
+
+  /* REP CARDS */
+  .rep-card { background: white; border: 1px solid var(--border); border-radius: 16px; padding: 24px; transition: box-shadow 0.2s; }
+  .rep-card:hover { box-shadow: var(--shadow); }
+  .rep-level { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; font-weight: 600; margin-bottom: 12px; padding: 3px 10px; border-radius: 20px; display: inline-block; }
+  .level-federal { background: var(--flag-blue-light); color: var(--flag-blue); }
+  .level-state { background: var(--gold-light); color: var(--gold); }
+  .level-local { background: var(--success-light); color: var(--success); }
+  .rep-name { font-size: 18px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+  .rep-title { font-size: 13px; color: var(--ink-soft); margin-bottom: 10px; line-height: 1.4; }
+  .rep-party { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; margin-bottom: 16px; }
+  .party-D { background: #ddeeff; color: #1155aa; }
+  .party-R { background: #ffdddd; color: #aa1111; }
+  .party-I { background: #eee; color: #555; }
+  .rep-contacts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .rep-contact-row { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .contact-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 13px; }
+  .icon-phone { background: var(--success-light); }
+  .icon-web { background: var(--flag-blue-light); }
+  .icon-email { background: var(--accent-light); }
+  .rep-contact-row a { color: var(--flag-blue); text-decoration: none; word-break: break-all; }
+  .rep-contact-row a:hover { text-decoration: underline; }
+  .rep-contact-row span { color: var(--ink-soft); }
+  .btn-write { width: 100%; padding: 12px; background: var(--flag-blue); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.2s; }
+  .btn-write:hover { background: #122b5e; }
+
+  /* LOADER & ERROR */
+  #repLoader { display: none; text-align: center; padding: 60px 24px; }
+  #repLoader.visible { display: block; }
+  .spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #error-msg { display: none; margin-top: 14px; }
+  #error-msg.visible { display: flex; align-items: center; gap: 10px; color: var(--accent); background: var(--accent-light); padding: 14px 16px; border-radius: 10px; font-size: 14px; }
+
+  /* LETTER MODAL */
+  #letterModal { display: none; position: fixed; inset: 0; background: rgba(10,10,30,0.6); z-index: 200; overflow-y: auto; padding: 40px 20px; }
+  #letterModal.open { display: flex; align-items: flex-start; justify-content: center; }
+  .modal-box { background: var(--paper); border-radius: 20px; width: 100%; max-width: 720px; padding: 40px; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+  .modal-close { position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--ink-soft); line-height: 1; padding: 4px 8px; border-radius: 6px; }
+  .modal-close:hover { background: rgba(0,0,0,0.06); }
+  .modal-to { font-size: 13px; color: var(--ink-soft); margin-bottom: 24px; padding: 12px 16px; background: white; border-radius: 10px; border: 1px solid var(--border); }
+  .modal-to strong { color: var(--ink); }
+  .modal-box h2 { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 6px; color: var(--ink); }
+  .modal-box > p { color: var(--ink-soft); font-size: 14px; margin-bottom: 24px; }
+  .form-group { margin-bottom: 18px; }
+  .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+  .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--ink); background: white; outline: none; transition: border-color 0.2s; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--flag-blue); }
+  .form-group textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .btn-generate { width: 100%; padding: 15px; background: var(--accent); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.2s; margin-bottom: 24px; }
+  .btn-generate:hover { background: #a82d16; }
+  .btn-generate:disabled { background: #ccc; cursor: not-allowed; }
+  #letterOutput { display: none; }
+  #letterOutput.visible { display: block; }
+  .letter-paper { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 36px 40px; margin-bottom: 20px; font-size: 14px; line-height: 1.8; color: var(--ink); white-space: pre-wrap; }
+  .letter-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn-copy, .btn-email { padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; border: 2px solid; }
+  .btn-copy { background: white; color: var(--flag-blue); border-color: var(--flag-blue); }
+  .btn-copy:hover { background: var(--flag-blue-light); }
+  .btn-email { background: var(--flag-blue); color: white; border-color: var(--flag-blue); }
+  .btn-email:hover { background: #122b5e; }
+  .letter-loader { display: none; text-align: center; padding: 40px; }
+  .letter-loader.visible { display: block; }
+
+  /* ABOUT PAGE */
+  .about-hero { background: var(--flag-blue); color: white; padding: 80px 24px 70px; position: relative; overflow: hidden; }
+  .about-hero::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 60px; background: var(--paper); clip-path: ellipse(55% 100% at 50% 100%); }
+  .about-inner { max-width: 860px; margin: 0 auto; }
+  .about-avatar { width: 100px; height: 100px; border-radius: 50%; background: rgba(255,255,255,0.15); border: 3px solid rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 22px; }
+  .about-hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(30px, 5vw, 52px); font-weight: 900; margin-bottom: 10px; }
+  .about-hero .subtitle { font-size: 16px; opacity: 0.75; margin-bottom: 22px; }
+  .about-tags { display: flex; flex-wrap: wrap; gap: 10px; }
+  .about-tag { padding: 5px 14px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; font-size: 13px; }
+  .about-body { max-width: 860px; margin: 0 auto; padding: 60px 24px 80px; }
+  .about-mission { background: var(--flag-blue); color: white; border-radius: 20px; padding: 40px; margin-bottom: 32px; }
+  .about-mission h2 { font-family: 'Playfair Display', serif; font-size: 26px; margin-bottom: 14px; }
+  .about-mission p { font-size: 16px; line-height: 1.75; opacity: 0.88; }
+  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+  .about-card { background: white; border: 1px solid var(--border); border-radius: 16px; padding: 28px; }
+  .about-card-icon { font-size: 26px; margin-bottom: 12px; }
+  .about-card h3 { font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 10px; }
+  .about-card p, .about-card li { font-size: 14px; color: var(--ink-soft); line-height: 1.7; }
+  .about-card ul { padding-left: 18px; }
+  .about-card li { margin-bottom: 4px; }
+  .about-connect { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+  .connect-btn { padding: 12px 22px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; text-decoration: none; display: inline-block; border: 2px solid; }
+  .connect-btn.primary { background: var(--flag-blue); color: white; border-color: var(--flag-blue); }
+  .connect-btn.secondary { background: white; color: var(--ink); border-color: var(--border); }
+  .connect-btn:hover { opacity: 0.85; }
+
+  /* API KEY MODAL */
+  #apiKeyModal { display: none; position: fixed; inset: 0; background: rgba(10,10,30,0.7); z-index: 300; align-items: center; justify-content: center; padding: 20px; }
+  .apikey-box { background: var(--paper); border-radius: 20px; max-width: 520px; width: 100%; padding: 36px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+
+  /* FOOTER */
+  footer { background: var(--ink); color: rgba(255,255,255,0.5); text-align: center; padding: 32px 24px; font-size: 13px; line-height: 1.7; }
+  footer strong { color: rgba(255,255,255,0.8); }
+  footer a { color: rgba(255,255,255,0.55); }
+
+  @media (max-width: 680px) {
+    nav { display: none; }
+    .form-row, .about-grid { grid-template-columns: 1fr; }
+    .modal-box { padding: 24px 18px; }
+    .letter-paper { padding: 24px 18px; }
+    .hero, .about-hero { padding: 60px 20px 80px; }
+    .zip-card { padding: 24px 20px; }
+    .filter-bar { flex-direction: column; }
+    .filter-count { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo" onclick="showPage('home')">
+      <div class="logo-star">&#9733;</div>
+      <div>
+        <span class="logo-text">CivicBridge</span>
+        <span class="logo-tagline">Students in Action</span>
+      </div>
+    </div>
+    <nav>
+      <a id="nav-home" class="active" onclick="showPage('home')">Home</a>
+      <a id="nav-about" onclick="showPage('about')">About</a>
+      <a class="nav-key" onclick="document.getElementById('apiKeyModal').style.display='flex'">&#128273; API Key</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HOME PAGE -->
+<div id="page-home" class="page active">
+  <section class="hero">
+    <p class="hero-eyebrow">Your Voice Matters</p>
+    <h1>Make <em>Your</em> Voice<br>Heard in Government</h1>
+    <p>Find your elected representatives and write powerful policy letters — all in minutes, powered by AI.</p>
+    <div class="zip-card">
+      <h2>Find your representatives</h2>
+      <p>Enter your zip code to see every elected official who represents you — federal, state, and local.</p>
+      <div class="zip-row">
+        <input class="zip-input" id="zipInput" type="text" maxlength="5" placeholder="ZIP code" inputmode="numeric" />
+        <button class="btn-primary" id="findBtn" onclick="findReps()">Find Reps &#8594;</button>
+      </div>
+      <div id="error-msg"></div>
+    </div>
+  </section>
+
+  <main>
+    <section class="how-section">
+      <p class="section-label">Simple Steps</p>
+      <h2 class="section-title">From Zip Code to Letter</h2>
+      <p class="section-sub">Three steps to make your voice heard in the halls of power.</p>
+      <div class="steps-grid">
+        <div class="step-card"><div class="step-num">1</div><h3>Enter Your Zip Code</h3><p>We look up every elected official who represents you — senators, representatives, governor, and local officials.</p></div>
+        <div class="step-card"><div class="step-num">2</div><h3>See Your Representatives</h3><p>Get names, party affiliations, phone numbers, websites, and direct contact info for each official.</p></div>
+        <div class="step-card"><div class="step-num">3</div><h3>Write a Policy Letter</h3><p>Our AI helps you craft a professional, persuasive letter on any issue you care about — personalized and ready to send.</p></div>
+      </div>
+    </section>
+
+    <div id="repLoader"><div class="spinner"></div><p style="color:var(--ink-soft);font-size:15px;margin-top:8px;">Looking up your representatives&#8230;</p></div>
+
+    <section id="results">
+      <div class="results-header">
+        <h2>Your Representatives</h2>
+        <span class="zip-badge" id="zipDisplay"></span>
+      </div>
+
+      <div class="filter-bar">
+        <div class="filter-group">
+          <label>Search Name</label>
+          <input type="text" id="filterName" placeholder="e.g. Smith" oninput="applyFilters()" />
+        </div>
+        <div class="filter-group">
+          <label>Level</label>
+          <select id="filterLevel" onchange="applyFilters()">
+            <option value="">All Levels</option>
+            <option value="federal">Federal</option>
+            <option value="state">State</option>
+            <option value="local">Local</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Party</label>
+          <select id="filterParty" onchange="applyFilters()">
+            <option value="">All Parties</option>
+            <option value="D">Democratic</option>
+            <option value="R">Republican</option>
+            <option value="I">Independent</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Per Page</label>
+          <select id="perPage" onchange="applyFilters()">
+            <option value="6">6</option>
+            <option value="9" selected>9</option>
+            <option value="12">12</option>
+            <option value="24">24</option>
+            <option value="9999">All</option>
+          </select>
+        </div>
+        <span class="filter-count" id="filterCount"></span>
+      </div>
+
+      <div class="reps-grid" id="repsGrid"></div>
+      <div class="pagination" id="pagination"></div>
+    </section>
+  </main>
+</div>
+
+<!-- ABOUT PAGE -->
+<div id="page-about" class="page">
+  <div class="about-hero">
+    <div class="about-inner">
+      <div class="about-avatar">&#128105;&#8205;&#128188;</div>
+      <h1>Siona Chakravarty</h1>
+      <p class="subtitle">Student Civic Advocate &middot; Creator of CivicBridge</p>
+      <div class="about-tags">
+        <span class="about-tag">Civic Engagement</span>
+        <span class="about-tag">Policy Advocacy</span>
+        <span class="about-tag">Student Leadership</span>
+        <span class="about-tag">EdTech</span>
+        <span class="about-tag">Democracy</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="about-body">
+    <div class="about-mission">
+      <h2>Why I Built CivicBridge</h2>
+      <p>Too many students feel disconnected from the political process — not because they don't care, but because the process feels intimidating and inaccessible. I built CivicBridge to change that. This tool exists to lower the barrier between young people and their elected representatives, turning a confusing system into something anyone can navigate in minutes.</p>
+    </div>
+
+    <div class="about-grid">
+      <div class="about-card">
+        <div class="about-card-icon">&#127891;</div>
+        <h3>Education &amp; Background</h3>
+        <p>I'm a student passionate about the intersection of technology and civic life. My academic work focuses on political science, public policy, and how digital tools can strengthen democratic participation among young people.</p>
+      </div>
+      <div class="about-card">
+        <div class="about-card-icon">&#127963;</div>
+        <h3>Civic Involvement</h3>
+        <ul>
+          <li>Student government representative</li>
+          <li>Volunteer for local voter registration drives</li>
+          <li>Youth civic engagement program participant</li>
+          <li>Advocate for student voices in public policy</li>
+        </ul>
+      </div>
+      <div class="about-card">
+        <div class="about-card-icon">&#128161;</div>
+        <h3>What I Believe</h3>
+        <p>Civic engagement isn't just voting — it's showing up, speaking up, and staying informed. Every student has the right and the power to influence the decisions that shape their lives, and technology should make that easier, not harder.</p>
+      </div>
+      <div class="about-card">
+        <div class="about-card-icon">&#128640;</div>
+        <h3>About CivicBridge</h3>
+        <ul>
+          <li>Live state rep data from Open States API</li>
+          <li>Federal data from Google Civic Information API</li>
+          <li>AI-powered letter drafting via Claude</li>
+          <li>Name, level &amp; party filters + pagination</li>
+          <li>Built for students, by a student</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="about-card">
+      <div class="about-card-icon">&#9993;&#65039;</div>
+      <h3>Get in Touch</h3>
+      <p>Have ideas for CivicBridge, want to collaborate, or just want to talk civic tech? I'd love to connect.</p>
+      <div class="about-connect">
+        <a class="connect-btn primary" href="https://www.linkedin.com/in/siona-chakravarty-1443373b1/" target="_blank">Connect on LinkedIn</a>
+        <a class="connect-btn secondary" onclick="showPage('home')">&#8592; Back to CivicBridge</a>
+      </div>
+    </div>
+
+    <p style="font-size:13px;color:var(--ink-soft);text-align:center;font-style:italic;margin-top:28px;">
+      Note: Update this page with your specific school, degree program, and experiences to personalize it.
+    </p>
+  </div>
+</div>
+
+<!-- LETTER MODAL -->
+<div id="letterModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()">&#10005;</button>
+    <h2>Write a Policy Letter</h2>
+    <p>Fill in the details and our AI will draft a professional letter for you.</p>
+    <div class="modal-to">Writing to: <strong id="modalRepName"></strong></div>
+    <div class="form-row">
+      <div class="form-group"><label>Your First Name</label><input type="text" id="senderFirst" placeholder="Jane" /></div>
+      <div class="form-group"><label>Your Last Name</label><input type="text" id="senderLast" placeholder="Smith" /></div>
+    </div>
+    <div class="form-group"><label>Your School / Organization (optional)</label><input type="text" id="senderSchool" placeholder="Lincoln High School" /></div>
+    <div class="form-group">
+      <label>Policy Topic / Issue</label>
+      <select id="policyTopic" onchange="document.getElementById('customTopicGroup').style.display=this.value==='custom'?'block':'none'">
+        <option value="">Select a topic&#8230;</option>
+        <option>Education funding and school resources</option>
+        <option>Climate change and environmental policy</option>
+        <option>Youth mental health and wellness</option>
+        <option>Affordable college tuition and student loans</option>
+        <option>Gun safety and school safety measures</option>
+        <option>Voting rights and youth civic participation</option>
+        <option>Immigration and DACA policy</option>
+        <option>Racial equity and civil rights</option>
+        <option>LGBTQ+ rights and protections</option>
+        <option>Minimum wage and worker protections</option>
+        <option>Healthcare access and affordability</option>
+        <option>Community policing and criminal justice reform</option>
+        <option value="custom">Other (describe below)</option>
+      </select>
+    </div>
+    <div class="form-group" id="customTopicGroup" style="display:none;"><label>Describe Your Issue</label><input type="text" id="customTopic" placeholder="Brief description of your policy concern" /></div>
+    <div class="form-group"><label>Your Main Ask</label><textarea id="policyAsk" placeholder="e.g. Support HB 1234, increase funding for after-school programs&#8230;"></textarea></div>
+    <div class="form-group"><label>Personal Connection (optional)</label><textarea id="personalStory" placeholder="Share a brief personal story or why this matters to you&#8230;" style="min-height:70px;"></textarea></div>
+    <div class="form-group">
+      <label>Tone</label>
+      <select id="letterTone">
+        <option value="respectful and urgent">Respectful &amp; Urgent</option>
+        <option value="professional and formal">Professional &amp; Formal</option>
+        <option value="passionate and personal">Passionate &amp; Personal</option>
+        <option value="concise and direct">Concise &amp; Direct</option>
+      </select>
+    </div>
+    <button class="btn-generate" id="generateBtn" onclick="generateLetter()">&#10022; Generate My Letter</button>
+    <div class="letter-loader" id="letterLoader"><div class="spinner"></div><p style="color:var(--ink-soft);font-size:14px;margin-top:4px;">Drafting your letter&#8230;</p></div>
+    <div id="letterOutput">
+      <div class="letter-paper" id="letterText"></div>
+      <div class="letter-actions">
+        <button class="btn-copy" id="copyBtn" onclick="copyLetter()">&#128203; Copy Letter</button>
+        <button class="btn-email" onclick="emailLetter()">&#9993; Open in Email</button>
+        <button class="btn-copy" onclick="regenerateLetter()" style="color:var(--accent);border-color:var(--accent);">&#8634; Regenerate</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- API KEY MODAL -->
+<div id="apiKeyModal">
+  <div class="apikey-box">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <div style="width:40px;height:40px;background:var(--flag-blue-light);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;">&#128273;</div>
+      <div><h2 style="font-family:'Playfair Display',serif;font-size:20px;color:var(--ink);">Open States API Key</h2><p style="font-size:13px;color:var(--ink-soft);">Required for live state representative data</p></div>
+    </div>
+    <p style="font-size:14px;color:var(--ink-mid);margin-bottom:16px;line-height:1.6;">To get accurate, real-time data on your state legislators and governor, CivicBridge uses the <strong>Open States API</strong> &mdash; a free civic data service.</p>
+    <ol style="font-size:14px;color:var(--ink-mid);margin-bottom:20px;padding-left:20px;line-height:2.2;">
+      <li>Visit <a href="https://open.pluralpolicy.com/accounts/profile/" target="_blank" style="color:var(--flag-blue);">open.pluralpolicy.com</a> and create a free account</li>
+      <li>Request an API key from your profile page</li>
+      <li>Paste it below and click Save</li>
+    </ol>
+    <div style="margin-bottom:16px;">
+      <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;color:var(--ink);">Your Open States API Key</label>
+      <input type="text" id="apiKeyInput" placeholder="Paste your API key here&#8230;" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ink);background:white;outline:none;" />
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button onclick="saveApiKey()" style="flex:1;padding:13px;background:var(--flag-blue);color:white;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Save &amp; Continue</button>
+      <button onclick="document.getElementById('apiKeyModal').style.display='none'" style="padding:13px 20px;background:white;color:var(--ink-soft);border:1.5px solid var(--border);border-radius:10px;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;">Cancel</button>
+    </div>
+    <p style="font-size:12px;color:var(--ink-soft);margin-top:12px;text-align:center;">Your key is stored only in your browser &mdash; never shared with anyone except Open States.</p>
+  </div>
+</div>
+
+<footer>
+  <strong>CivicBridge</strong> &mdash; Empowering the Next Generation of Civic Leaders<br>
+  State data: <a href="https://openstates.org" target="_blank">Open States</a> &middot; Federal data: Google Civic Information API &middot; Letters: Claude AI<br>
+  <span style="font-size:12px;margin-top:8px;display:block;">For educational purposes. Always verify representative contact information before sending correspondence.</span>
+</footer>
+
+<script>
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+let currentRep = null, currentZip = '', lastLetter = '';
+let allReps = [], filteredReps = [], currentPage = 1;
+let OPEN_STATES_KEY = localStorage.getItem('civicbridge_os_key') || '';
+
+// ── PAGE NAV ─────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('nav a[id^="nav-"]').forEach(a => a.classList.remove('active'));
+  var el = document.getElementById('nav-' + name);
+  if (el) el.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ── API KEY ──────────────────────────────────────────────
+window.addEventListener('load', function() {
+  if (!OPEN_STATES_KEY) document.getElementById('apiKeyModal').style.display = 'flex';
+  if (OPEN_STATES_KEY) document.getElementById('apiKeyInput').value = OPEN_STATES_KEY;
+});
+function saveApiKey() {
+  var k = document.getElementById('apiKeyInput').value.trim();
+  if (!k) { alert('Please enter your API key.'); return; }
+  OPEN_STATES_KEY = k;
+  localStorage.setItem('civicbridge_os_key', k);
+  document.getElementById('apiKeyModal').style.display = 'none';
+}
+
+// ── ZIP INPUT ────────────────────────────────────────────
+document.getElementById('zipInput').addEventListener('input', function() {
+  this.value = this.value.replace(/\D/g, '').slice(0, 5);
+});
+document.getElementById('zipInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') findReps();
+});
+
+// ── GEOCODE ──────────────────────────────────────────────
+async function zipToLatLng(zip) {
+  var res = await fetch('https://geocoding.geo.census.gov/geocoder/locations/address?zip=' + zip + '&benchmark=Public_AR_Current&format=json');
+  var data = await res.json();
+  var match = data.result && data.result.addressMatches && data.result.addressMatches[0];
+  if (!match) throw new Error('Zip not found');
+  return { lat: match.coordinates.y, lng: match.coordinates.x, state: match.addressComponents.state };
+}
+
+var ZIP_STATE = {"01":"MA","02":"MA","03":"NH","04":"ME","05":"VT","06":"CT","07":"NJ","08":"NJ","10":"NY","11":"NY","12":"NY","13":"NY","14":"NY","15":"PA","16":"PA","17":"PA","18":"PA","19":"PA","20":"DC","21":"MD","22":"VA","23":"VA","24":"VA","25":"WV","26":"WV","27":"NC","28":"NC","29":"SC","30":"GA","31":"GA","32":"FL","33":"FL","34":"FL","35":"AL","36":"AL","37":"TN","38":"TN","39":"MS","40":"KY","41":"KY","42":"KY","43":"OH","44":"OH","45":"OH","46":"IN","47":"IN","48":"MI","49":"MI","50":"IA","51":"IA","52":"IA","53":"WI","54":"WI","55":"MN","56":"MN","57":"SD","58":"ND","59":"MT","60":"IL","61":"IL","62":"IL","63":"MO","64":"MO","65":"MO","66":"KS","67":"KS","68":"NE","69":"NE","70":"LA","71":"LA","72":"AR","73":"OK","74":"OK","75":"TX","76":"TX","77":"TX","78":"TX","79":"TX","80":"CO","81":"CO","82":"WY","83":"ID","84":"UT","85":"AZ","86":"AZ","87":"NM","88":"NM","89":"NV","90":"CA","91":"CA","92":"CA","93":"CA","94":"CA","95":"CA","96":"CA","97":"OR","98":"WA","99":"WA"};
+function zipToState(zip) { return ZIP_STATE[zip.slice(0,2)] || null; }
+
+// ── OPEN STATES: by geo (state legislators) ──────────────
+async function fetchOpenStatesByGeo(lat, lng) {
+  if (!OPEN_STATES_KEY) return [];
+  var url = 'https://v3.openstates.org/people.geo?lat=' + lat + '&lng=' + lng + '&include=links&include=offices&apikey=' + OPEN_STATES_KEY;
+  var res = await fetch(url);
+  if (!res.ok) return [];
+  var data = await res.json();
+  return (data.results || []).map(function(p) { return parseOpenStatesPerson(p, null); }).filter(Boolean);
+}
+
+// ── OPEN STATES: governor ────────────────────────────────
+async function fetchOpenStatesGovernor(state) {
+  if (!OPEN_STATES_KEY || !state) return [];
+  var url = 'https://v3.openstates.org/people?jurisdiction=' + state.toLowerCase() + '&role=governor&include=links&include=offices&apikey=' + OPEN_STATES_KEY;
+  var res = await fetch(url);
+  if (!res.ok) return [];
+  var data = await res.json();
+  // Force title = "Governor" for this endpoint only
+  return (data.results || []).map(function(p) { return parseOpenStatesPerson(p, 'Governor'); }).filter(Boolean);
+}
+
+// ── PARSE OPEN STATES PERSON ─────────────────────────────
+function parseOpenStatesPerson(p, overrideTitle) {
+  if (!p || !p.name) return null;
+  var role = p.current_role || {};
+
+  // Build title from role data — never default everyone to "Governor"
+  var title;
+  if (overrideTitle) {
+    title = overrideTitle;
+  } else if (role.title && role.district) {
+    title = role.title + ' — District ' + role.district;
+  } else if (role.title) {
+    title = role.title;
+  } else {
+    title = 'State Legislator';
+  }
+
+  var partyRaw = (p.party || '').trim();
+  var partyMap = { 'Democratic':'D','Republican':'R','Independent':'I','Democrat':'D','Green':'G','Libertarian':'L','Nonpartisan':'I','No Party Affiliation':'I' };
+  var partyCode = partyMap[partyRaw] || (partyRaw ? partyRaw[0].toUpperCase() : '?');
+
+  var phone = null, email = null;
+  (p.offices || []).forEach(function(o) {
+    if (!phone && o.voice) phone = o.voice;
+    if (!email && o.email) email = o.email;
+  });
+
+  var links = p.links || [];
+  var govLink = links.find(function(l) { return l.url && (l.url.includes('.gov') || l.url.includes('legis')); });
+  var website = (govLink && govLink.url) || (links[0] && links[0].url) || null;
+
+  return { name: p.name, title: title, party: partyCode, partyFull: partyRaw || 'Unknown', phone: phone, website: website, email: email, level: 'state', source: 'openstates' };
+}
+
+// ── GOOGLE CIVIC: federal reps ───────────────────────────
+async function fetchGoogleCivicFederal(zip) {
+  var apiKey = 'AIzaSyALnX6UTsMO13M7-BlaRs50V07nPuRG3vA';
+  var url = 'https://www.googleapis.com/civicinfo/v2/representatives?key=' + apiKey + '&address=' + encodeURIComponent(zip) + '&levels=country&roles=legislatorUpperBody&roles=legislatorLowerBody';
+  try {
+    var res = await fetch(url);
+    if (!res.ok) return [];
+    var data = await res.json();
+    return parseGoogleCivic(data);
+  } catch(e) { return []; }
+}
+
+function parseGoogleCivic(data) {
+  var officials = [];
+  if (!data.offices || !data.officials) return officials;
+  data.offices.forEach(function(office) {
+    (office.officialIndices || []).forEach(function(idx) {
+      var off = data.officials[idx];
+      if (!off) return;
+      officials.push({
+        name: off.name, title: office.name,
+        party: off.party ? off.party[0] : '?',
+        partyFull: off.party || 'Unknown',
+        phone: (off.phones && off.phones[0]) || null,
+        website: (off.urls && off.urls[0]) || null,
+        email: (off.emails && off.emails[0]) || null,
+        level: 'federal', source: 'google'
+      });
+    });
+  });
+  return officials;
+}
+
+// ── MAIN FIND REPS ───────────────────────────────────────
+async function findReps() {
+  var zip = document.getElementById('zipInput').value.trim();
+  if (zip.length !== 5) { showError('Please enter a valid 5-digit zip code.'); return; }
+  hideError();
+  if (!OPEN_STATES_KEY) { document.getElementById('apiKeyModal').style.display = 'flex'; return; }
+
+  currentZip = zip;
+  currentPage = 1;
+  document.getElementById('results').classList.remove('visible');
+  document.getElementById('repLoader').classList.add('visible');
+  document.getElementById('findBtn').disabled = true;
+  document.getElementById('filterName').value = '';
+  document.getElementById('filterLevel').value = '';
+  document.getElementById('filterParty').value = '';
+
+  try {
+    var lat = null, lng = null, state = null;
+    try { var geo = await zipToLatLng(zip); lat = geo.lat; lng = geo.lng; state = geo.state; }
+    catch(e) { state = zipToState(zip); }
+
+    var results = await Promise.all([
+      fetchGoogleCivicFederal(zip),
+      lat ? fetchOpenStatesByGeo(lat, lng) : Promise.resolve([]),
+      state ? fetchOpenStatesGovernor(state) : Promise.resolve([])
+    ]);
+    var federalReps = results[0], stateReps = results[1], governor = results[2];
+
+    var seen = {};
+    allReps = [];
+    function addRep(r) {
+      var k = r.name.toLowerCase().replace(/\W/g,'');
+      if (!seen[k]) { seen[k] = true; allReps.push(r); }
+    }
+    federalReps.forEach(addRep);
+    governor.forEach(addRep);
+    stateReps.forEach(addRep);
+
+    if (allReps.length === 0) {
+      allReps = [
+        { name:'Find Your US Senators', title:'United States Senate', party:'?', partyFull:'Visit senate.gov', phone:null, website:'https://www.senate.gov/senators/senators-contact.htm', email:null, level:'federal' },
+        { name:'Find Your US Representative', title:'US House of Representatives', party:'?', partyFull:'Visit house.gov', phone:null, website:'https://www.house.gov/representatives/find-your-representative', email:null, level:'federal' },
+        { name:'Find State Legislators', title:'State Legislature', party:'?', partyFull:'Visit openstates.org', phone:null, website:'https://openstates.org/find_your_legislator/', email:null, level:'state' }
+      ];
+    }
+
+    var order = { federal:0, state:1, local:2 };
+    allReps.sort(function(a,b) { return (order[a.level]||2) - (order[b.level]||2); });
+
+    document.getElementById('repLoader').classList.remove('visible');
+    document.getElementById('zipDisplay').textContent = zip;
+    document.getElementById('results').classList.add('visible');
+    applyFilters();
+    document.getElementById('results').scrollIntoView({ behavior:'smooth', block:'start' });
+
+  } catch(e) {
+    showError('Unable to fetch representatives. Check your connection and API key.');
+    document.getElementById('repLoader').classList.remove('visible');
+  }
+  document.getElementById('findBtn').disabled = false;
+}
+
+// ── FILTERS + PAGINATION ─────────────────────────────────
+function applyFilters() {
+  var nameQ = document.getElementById('filterName').value.toLowerCase();
+  var levelQ = document.getElementById('filterLevel').value;
+  var partyQ = document.getElementById('filterParty').value;
+  var perPage = parseInt(document.getElementById('perPage').value) || 9;
+
+  filteredReps = allReps.filter(function(r) {
+    if (nameQ && r.name.toLowerCase().indexOf(nameQ) === -1) return false;
+    if (levelQ && r.level !== levelQ) return false;
+    if (partyQ && r.party !== partyQ) return false;
+    return true;
+  });
+
+  var totalPages = Math.max(1, Math.ceil(filteredReps.length / perPage));
+  if (currentPage > totalPages) currentPage = 1;
+
+  var start = (currentPage - 1) * perPage;
+  var pageReps = perPage >= 9999 ? filteredReps : filteredReps.slice(start, start + perPage);
+
+  var grid = document.getElementById('repsGrid');
+  grid.innerHTML = '';
+  if (pageReps.length === 0) {
+    grid.innerHTML = '<p style="color:var(--ink-soft);grid-column:1/-1;padding:20px 0;">No representatives match your filters.</p>';
+  } else {
+    pageReps.forEach(function(r) { grid.appendChild(buildRepCard(r)); });
+  }
+
+  document.getElementById('filterCount').textContent =
+    filteredReps.length === allReps.length
+      ? allReps.length + ' representative' + (allReps.length !== 1 ? 's' : '')
+      : filteredReps.length + ' of ' + allReps.length + ' shown';
+
+  renderPagination(totalPages, perPage);
+}
+
+function renderPagination(totalPages, perPage) {
+  var el = document.getElementById('pagination');
+  if (totalPages <= 1 || perPage >= 9999) { el.innerHTML = ''; return; }
+
+  var html = '<button class="page-btn" onclick="goToPage(' + (currentPage-1) + ')" ' + (currentPage===1?'disabled':'') + '>&#8592; Prev</button>';
+
+  for (var i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= currentPage-2 && i <= currentPage+2)) {
+      html += '<button class="page-btn' + (i===currentPage?' active':'') + '" onclick="goToPage(' + i + ')">' + i + '</button>';
+    } else if (i === currentPage-3 || i === currentPage+3) {
+      html += '<span class="page-info">&#8230;</span>';
+    }
+  }
+
+  html += '<button class="page-btn" onclick="goToPage(' + (currentPage+1) + ')" ' + (currentPage===totalPages?'disabled':'') + '>Next &#8594;</button>';
+  html += '<span class="page-info">Page ' + currentPage + ' of ' + totalPages + '</span>';
+  el.innerHTML = html;
+}
+
+function goToPage(n) {
+  var perPage = parseInt(document.getElementById('perPage').value) || 9;
+  var totalPages = Math.ceil(filteredReps.length / perPage);
+  if (n < 1 || n > totalPages) return;
+  currentPage = n;
+  applyFilters();
+  document.getElementById('results').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+// ── BUILD REP CARD ───────────────────────────────────────
+function buildRepCard(rep) {
+  var card = document.createElement('div');
+  card.className = 'rep-card';
+  var levelClass = { federal:'level-federal', state:'level-state', local:'level-local' }[rep.level] || 'level-local';
+  var levelLabel = { federal:'Federal', state:'State', local:'Local' }[rep.level] || 'Local';
+  var partyClass = { D:'party-D', R:'party-R' }[rep.party] || 'party-I';
+
+  var contacts = '';
+  if (rep.phone) contacts += '<div class="rep-contact-row"><div class="contact-icon icon-phone">&#128222;</div><span>' + rep.phone + '</span></div>';
+  if (rep.website) {
+    var disp = rep.website.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,'').slice(0,42);
+    contacts += '<div class="rep-contact-row"><div class="contact-icon icon-web">&#127760;</div><a href="' + rep.website + '" target="_blank">' + disp + '</a></div>';
+  }
+  if (rep.email) contacts += '<div class="rep-contact-row"><div class="contact-icon icon-email">&#9993;</div><a href="mailto:' + rep.email + '">' + rep.email + '</a></div>';
+  if (!contacts) contacts = '<div class="rep-contact-row" style="color:var(--ink-soft);font-size:13px;font-style:italic;">Search online for contact info</div>';
+
+  var repJson = JSON.stringify(rep).replace(/\\/g,'\\\\').replace(/'/g,'&#39;').replace(/"/g,'&quot;');
+  card.innerHTML =
+    '<span class="rep-level ' + levelClass + '">' + levelLabel + '</span>' +
+    '<div class="rep-name">' + rep.name + '</div>' +
+    '<div class="rep-title">' + rep.title + '</div>' +
+    '<span class="rep-party ' + partyClass + '">' + (rep.partyFull || rep.party) + '</span>' +
+    '<div class="rep-contacts">' + contacts + '</div>' +
+    '<button class="btn-write" data-rep="' + repJson + '">&#10022; Write a Letter to This Rep</button>';
+
+  card.querySelector('.btn-write').addEventListener('click', function() {
+    openModal(rep);
+  });
+  return card;
+}
+
+// ── MODAL ────────────────────────────────────────────────
+function openModal(rep) {
+  currentRep = rep;
+  document.getElementById('modalRepName').textContent = rep.name + ' — ' + rep.title;
+  document.getElementById('letterOutput').classList.remove('visible');
+  document.getElementById('letterLoader').classList.remove('visible');
+  document.getElementById('letterText').textContent = '';
+  document.getElementById('letterModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('letterModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('letterModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ── GENERATE LETTER ──────────────────────────────────────
+async function generateLetter() {
+  var first = document.getElementById('senderFirst').value.trim();
+  var last = document.getElementById('senderLast').value.trim();
+  var school = document.getElementById('senderSchool').value.trim();
+  var topicSel = document.getElementById('policyTopic').value;
+  var topic = topicSel === 'custom' ? document.getElementById('customTopic').value.trim() : topicSel;
+  var ask = document.getElementById('policyAsk').value.trim();
+  var story = document.getElementById('personalStory').value.trim();
+  var tone = document.getElementById('letterTone').value;
+
+  if (!first || !last) { alert('Please enter your name.'); return; }
+  if (!topic) { alert('Please select or enter a policy topic.'); return; }
+  if (!ask) { alert('Please describe what you\'d like your representative to do.'); return; }
+
+  document.getElementById('generateBtn').disabled = true;
+  document.getElementById('letterOutput').classList.remove('visible');
+  document.getElementById('letterLoader').classList.add('visible');
+
+  var prompt = 'Write a ' + tone + ' letter from a student to their elected representative.\n\n' +
+    'REPRESENTATIVE: ' + currentRep.name + ', ' + currentRep.title + '\n' +
+    'STUDENT NAME: ' + first + ' ' + last + (school ? '\nSTUDENT SCHOOL/ORG: ' + school : '') + '\n' +
+    'ZIP CODE: ' + currentZip + '\n' +
+    'POLICY TOPIC: ' + topic + '\n' +
+    'MAIN REQUEST: ' + ask + (story ? '\nPERSONAL CONTEXT: ' + story : '') + '\n\n' +
+    'Write a complete, professional letter ready to send. Include today\'s date, appropriate salutation, 3-4 focused paragraphs (introduction, issue with evidence, specific ask, closing), and a professional closing and signature block (' + first + ' ' + last + (school?', '+school:'') + ', Constituent from ZIP ' + currentZip + '). Do not use placeholder brackets — write the full letter now.';
+
+  try {
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
+    });
+    var data = await res.json();
+    lastLetter = (data.content && data.content[0] && data.content[0].text) || 'Error generating letter.';
+    document.getElementById('letterText').textContent = lastLetter;
+    document.getElementById('letterLoader').classList.remove('visible');
+    document.getElementById('letterOutput').classList.add('visible');
+    document.getElementById('letterOutput').scrollIntoView({ behavior: 'smooth' });
+  } catch(e) {
+    document.getElementById('letterLoader').classList.remove('visible');
+    alert('Error generating letter. Please check your connection and try again.');
+  }
+  document.getElementById('generateBtn').disabled = false;
+}
+
+function regenerateLetter() { document.getElementById('letterOutput').classList.remove('visible'); generateLetter(); }
+
+function copyLetter() {
+  if (!lastLetter) return;
+  navigator.clipboard.writeText(lastLetter).then(function() {
+    var b = document.getElementById('copyBtn');
+    b.textContent = '&#10003; Copied!';
+    setTimeout(function() { b.innerHTML = '&#128203; Copy Letter'; }, 2000);
+  });
+}
+
+function emailLetter() {
+  if (!lastLetter || !currentRep) return;
+  var sub = encodeURIComponent('Constituent Letter — ' + (document.getElementById('policyTopic').value || 'Policy Request'));
+  var body = encodeURIComponent(lastLetter);
+  var to = currentRep.email ? encodeURIComponent(currentRep.email) : '';
+  window.open('mailto:' + to + '?subject=' + sub + '&body=' + body);
+}
+
+function showError(msg) {
+  var el = document.getElementById('error-msg');
+  el.innerHTML = msg;
+  el.classList.add('visible');
+}
+function hideError() { document.getElementById('error-msg').classList.remove('visible'); }
+</script>
+</body>
+</html>
